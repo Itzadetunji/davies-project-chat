@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
 					<h2 className="text-[27px] font-semibold leading-[40.5px] text-[#212121]">
 						Emily Raves
 					</h2>
-					<div className="text-[#323142]">
+					<div className="text-center text-[#323142] text-opacity-[0.52]">
 						<p className="text-[14px] leading-[21px]">
 							@emilyraves
 						</p>
