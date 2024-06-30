@@ -83,13 +83,3 @@
 	box-shadow: 0px 4px 30.5px 8px #00000040;
 }
 
-.about-us-bg {
-	background: url("../public/about-us-bg.png") no-repeat;
-	background-size: 100% 100vh;
-	background-position: center;
-	height: 100vh;
-}
-
-.about-us-features-bg {
-	box-shadow: 0px 4px 4px 0px #00000040;
-}
