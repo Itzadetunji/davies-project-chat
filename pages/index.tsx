@@ -6,6 +6,7 @@ import Ellipse from "../public/ellipse.png";
 import Camera from "../public/camera.png";
 import Send from "../public/send.png";
 import { io } from "socket.io-client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
 	role: string;
@@ -95,7 +96,7 @@ const Home = () => {
 
 	return (
 		<>
-			<main className="relative w-full">
+			<main className="relative flex h-[100svh] w-full flex-col">
 				<div className="w-full rounded-b-xl bg-peach p-5">
 					<div className="flex flex-row items-center justify-around space-x-20">
 						<button>
@@ -111,62 +112,62 @@ const Home = () => {
 						/>
 					</div>
 				</div>
-			</main>
-			<div className="fixed bottom-0 left-0 flex w-full items-center justify-center p-4">
-				<div className="flex w-full max-w-xl items-center">
-					<button
-						type="button"
-						className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
-						onClick={handleCameraClick}
-					>
-						<Image
-							src={Camera}
-							width={20}
-							height={18}
-							alt="Camera"
-							onClick={requestImage}
-						/>
-					</button>
-					<input
-						type="file"
-						accept="image/*"
-						capture="environment"
-						ref={fileInputRef}
-						onChange={handleFileChange}
-						className="hidden"
-					/>
-					<div className="relative mx-2 flex-grow">
-						<textarea
-							className="h-12 max-h-36 w-full resize-none overflow-y-auto rounded-md border p-4 pr-12 font-poppins text-base placeholder-black focus:outline-none"
-							placeholder="Send a message..."
-							value={message}
-							onChange={(e) => setMessage(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" && !e.shiftKey) {
-									e.preventDefault();
-									sendMessage();
-								}
-							}}
-						/>
-
+				<ScrollArea className="max-h-screen flex-1 p-4">
+					{messages.map(({ role, content }, index) => (
+						<div key={index} className="my-2">
+							{role === "user" ? "👨: " : "🤖: "} {content}
+						</div>
+					))}
+					{/* <div ref={messagesEndRef} /> */}
+				</ScrollArea>
+				<div className="flex w-full items-center justify-center p-4">
+					<div className="flex w-full max-w-xl items-center">
 						<button
 							type="button"
-							className="absolute right-3 top-1/2 -translate-y-1/2 transform text-red-500"
-							onClick={sendMessage}
+							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
+							onClick={handleCameraClick}
 						>
-							<Image src={Send} alt="Send" />
+							<Image
+								src={Camera}
+								width={20}
+								height={18}
+								alt="Camera"
+								onClick={requestImage}
+							/>
 						</button>
+						<input
+							type="file"
+							accept="image/*"
+							capture="environment"
+							ref={fileInputRef}
+							onChange={handleFileChange}
+							className="hidden"
+						/>
+						<div className="relative mx-2 flex-grow">
+							<textarea
+								className="h-12 max-h-36 w-full resize-none overflow-y-auto rounded-md border p-4 pr-12 font-poppins text-base placeholder-black focus:outline-none"
+								placeholder="Send a message..."
+								value={message}
+								onChange={(e) => setMessage(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" && !e.shiftKey) {
+										e.preventDefault();
+										sendMessage();
+									}
+								}}
+							/>
+
+							<button
+								type="button"
+								className="absolute right-3 top-1/2 -translate-y-1/2 transform text-red-500"
+								onClick={sendMessage}
+							>
+								<Image src={Send} alt="Send" />
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div className="p-4 overflow-y-auto max-h-screen">
-				{messages.map(({ role, content }, index) => (
-					<div key={index} className="my-2">
-						{role === "user" ? "👨: " : "🤖: "} {content}
-					</div>
-				))}
-				<div ref={messagesEndRef} />
-			</div>
+			</main>
 		</>
 	);
 };
