@@ -11,7 +11,7 @@ import Link from "next/link";
 interface Message {
 	role: string;
 	content: string;
-	image?: string;
+	photo_url?: string;
 }
 interface InitData {
 	chat_name: string;
@@ -61,13 +61,23 @@ const Home = () => {
 
 	const sendMessage = () => {
 		const newMessage: Message = { role: "user", content: message };
-		if (imagePrompt) {
-			newMessage.image = imagePrompt;
-			setImagePrompt("");
-		}
+
 		setMessages((prevMessages) => [...prevMessages, newMessage]);
 		socket.emit("newMessage", {
 			messages: [...messages, newMessage],
+			chatId,
+			userId,
+		}, (response: any) => {
+			setMessages((prevMessages) => [...prevMessages, response]);
+		});
+		setMessage("");
+	};
+
+	const requestImage = () => {
+		const newMessage: Message = { role: "user", content: message };
+		setMessages((prevMessages) => [...prevMessages, newMessage]);
+		socket.emit("requestImage", {
+			message: newMessage,
 			chatId,
 			userId,
 		}, (response: any) => {
@@ -107,21 +117,21 @@ const Home = () => {
 				</div>
 
 				<ScrollArea className="flex-end flex flex-1 flex-col items-baseline justify-end overflow-y-scroll p-4">
-					{messages.map(({ role, content, image }, index) => (
+					{messages.map(({ role, content, photo_url }, index) => (
 						<div
 							key={index}
 							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end bg-peach text-left text-white" : "w-fit max-w-[80%] justify-start bg-white text-left text-black"}`}
 						>
-							{image && (
+							{photo_url && (
 								<div className="mt-2">
 									<img
-										src={image}
+										src={photo_url}
 										alt="uploaded"
 										className="h-auto max-w-full rounded"
 									/>
 								</div>
 							)}
-							{content}
+							{!photo_url && content}
 						</div>
 					))}
 				</ScrollArea>
@@ -140,15 +150,16 @@ const Home = () => {
 										if (e.key === "Enter" && !e.shiftKey) {
 											e.preventDefault();
 											if (
-												message.trim() !== "" ||
-												imagePrompt
+												message.trim() !== ""
+												//  ||
+												// imagePrompt
 											) {
 												sendMessage();
 											}
 										}
 									}}
 								/>
-								{imagePrompt && (
+								{/* {imagePrompt && (
 									<div className="absolute left-0 top-1/2 -translate-y-1/2 transform">
 										<img
 											src={imagePrompt}
@@ -156,13 +167,13 @@ const Home = () => {
 											className="mt-2 h-[40px] max-w-[200px] rounded"
 										/>
 									</div>
-								)}
+								)} */}
 							</div>
 							<button
 								type="button"
 								className="absolute right-3 top-1/2 -translate-y-1/2 transform text-red-500"
 								onClick={() => {
-									if (message.trim() !== "" || imagePrompt) {
+									if (message.trim() !== "") {// || imagePrompt) {
 										sendMessage();
 									}
 								}}
@@ -184,6 +195,11 @@ const Home = () => {
 						<button
 							type="button"
 							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
+							onClick={() => {
+								if (message.trim() !== "") {
+									requestImage();
+								}
+							}}
 						// onClick={handleCameraClick}
 						>
 							<svg

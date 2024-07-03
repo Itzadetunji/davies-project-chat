@@ -36,9 +36,10 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
         }
       });
 
-      socket.on("requestImage", async ({ messages, chatId, userId }) => {
-        const responseImage = await processImage(messages, chatId, userId);
-        socket.to(chatId).emit("responseImage", responseImage);
+      socket.on("requestImage", async ({ message, chatId, userId }, callback) => {
+  		  console.log("Recieved");
+        const responseImage = await processImage(message, chatId, userId);
+        callback(responseImage);
       });
     });
 
@@ -58,14 +59,14 @@ const processMessage = async (messages: Message[], chatId: string, userId: strin
   return assistantMessage;
 };
 
-const processImage = async (messages: Message[], chatId: any, userId: string) => {
+const processImage = async (message: Message, chatId: any, userId: string) => {
   const chat = await Chat.findOne({ _id: chatId, user_id: userId });
   if (!chat) return;
 
-  const imageUrl = await requestSwapImageApiRequest(messages[messages.length - 1].content, chat.genre, chat.photo_url);
+  const imageUrl = await requestSwapImageApiRequest(message.content, chat.genre, chat.photo_url);
 
-  const assistantMessage = { role: "assistant", photo_url: imageUrl };
-  await Chat.updateOne({ _id: chatId, user_id: userId }, { $push: { messages: { $each: [messages[messages.length - 1], assistantMessage] } } });
+  const assistantMessage = { role: "assistant", photo_url: imageUrl, content:`A photo response for prompt: "${message.content}"` };
+  await Chat.updateOne({ _id: chatId, user_id: userId }, { $push: { messages: { $each: [message, assistantMessage] } } });
   return assistantMessage;
 };
 
