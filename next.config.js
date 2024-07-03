@@ -2,8 +2,17 @@
 const nextConfig = {
 	reactStrictMode: true,
 	swcMinify: true,
-	experimental: {
-		turboMode: true, // Enable Turbo Mode
+	// experimental: {
+	// 	turbo: true, // Enable Turbo Mode
+	// },
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'api.telegram.org',
+				pathname: '/file/bot**',
+			},
+		],
 	},
 };
 

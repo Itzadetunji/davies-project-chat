@@ -1,5 +1,5 @@
 import connectMongoDB from "./mongo";
-import User from "@/models/user";
+// import User from "@/models/user";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -8,21 +8,21 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 
-export const deductBalance = async (price:number, user: any) => {
-  await connectMongoDB()
-  const rem = price - user.non_transferable;
-  if (rem > 0) {
-    await User.updateOne(
-      { _id: user._id },
-      { $inc: { transferable: -rem }, $set: { non_transferable: 0 } }
-    );
-  } else {
-    await User.updateOne(
-      { _id: user._id },
-      { $inc: { non_transferable: -price } }
-    );
-  }
-};
+// export const deductBalance = async (price:number, user: any) => {
+//   await connectMongoDB()
+//   const rem = price - user.non_transferable;
+//   if (rem > 0) {
+//     await User.updateOne(
+//       { _id: user._id },
+//       { $inc: { transferable: -rem }, $set: { non_transferable: 0 } }
+//     );
+//   } else {
+//     await User.updateOne(
+//       { _id: user._id },
+//       { $inc: { non_transferable: -price } }
+//     );
+//   }
+// };
 
 import axios from 'axios';
 
