@@ -105,14 +105,11 @@ const Home = () => {
 			<main className="relative flex h-[100svh] w-full flex-col">
 				<div className="w-full rounded-b-xl bg-peach p-5">
 					<div className="flex flex-row items-center justify-around space-x-20">
-						<button>
-							<ArrowLeft2 size="16" color="#fcf9f7" />
-						</button>
 						<h1 className="font-poppins text-xl">{initData?.chat_name || "Loading..."}</h1>
 						{initData && <img
 							src={initData.photo_url}
-							width={48}
-							height={48}
+							width={34}
+							height={34}
 							alt="Ellipse"
 						/>}
 					</div>
