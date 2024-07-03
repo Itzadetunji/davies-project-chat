@@ -1,10 +1,12 @@
-import { ArrowLeft2 } from "iconsax-react";
-import Image from "next/image";
+// import { ArrowLeft2 } from "iconsax-react";
+// import Image from "next/image";
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/router";
-import Ellipse from "@/public/ellipse.png";
+// import Ellipse from "@/public/ellipse.png";
 import { io } from "socket.io-client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {useUserStore} from "@/store/useUserStore";
+import Link from "next/link";
 
 interface Message {
 	role: string;
@@ -17,31 +19,31 @@ interface InitData {
 	genre: string;
 	_id: any;
 	user_id: string;
-	messages: Message[]
-};
+	messages: Message[];
+}
 
 const socket = io({ path: "/api/socket" });
 
 const Home = () => {
-	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	// const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-	const handleCameraClick = () => {
-		if (fileInputRef.current) {
-			fileInputRef.current.click();
-		}
-	};
+	// const handleCameraClick = () => {
+	// 	if (fileInputRef.current) {
+	// 		fileInputRef.current.click();
+	// 	}
+	// };
 
-	const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setImagePrompt(reader.result as string);
-			};
-			reader.readAsDataURL(file);
-		}
-	};
+	// const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+	// 	const file = event.target.files?.[0];
+	// 	if (file) {
+	// 		const reader = new FileReader();
+	// 		reader.onloadend = () => {
+	// 			setImagePrompt(reader.result as string);
+	// 		};
+	// 		reader.readAsDataURL(file);
+	// 	}
+	// };
 
 	const [message, setMessage] = useState<string>("");
 	const [imagePrompt, setImagePrompt] = useState<string>("");
@@ -55,6 +57,8 @@ const Home = () => {
 		userId: string;
 	}>({ chatId: "", userId: "" });
 
+	const { setPhotoUrl, setChatName } = useUserStore();
+
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
 			id: string;
@@ -67,6 +71,8 @@ const Home = () => {
 			socket.on("getInitData", (data: any) => {
 				setInitData(data);
 				setMessages(data.messages);
+				setChatName(data.chat_name);
+				setPhotoUrl(data.photo_url);
 			});
 
 			socket.on("responseMessage", (msg: Message) => {
@@ -104,14 +110,19 @@ const Home = () => {
 		<>
 			<main className="relative flex h-[100svh] w-full flex-col">
 				<div className="w-full rounded-b-xl bg-peach p-5">
-					<div className="flex flex-row items-center justify-around space-x-20">
-						<h1 className="font-poppins text-xl">{initData?.chat_name || "Loading..."}</h1>
-						{initData && <img
-							src={initData.photo_url}
-							width={34}
-							height={34}
-							alt="Ellipse"
-						/>}
+					<div className="flex items-center justify-between">
+						<h1 className="font-poppins text-xl">
+							{initData?.chat_name || "Loading..."}
+						</h1>
+						{initData && (
+							<Link href={'/profile'}>
+								<img
+									src={initData.photo_url}
+									alt="Ellipse"
+									className="h-14 w-14 cursor-pointer rounded-full"
+								/>
+							</Link>
+						)}
 					</div>
 				</div>
 
@@ -137,46 +148,11 @@ const Home = () => {
 
 				<div className="flex w-full items-center justify-center p-4">
 					<div className="flex w-full max-w-xl items-center">
-						<button
-							type="button"
-							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
-							onClick={handleCameraClick}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width={28}
-								height={24}
-								viewBox="0 0 24 24"
-								fill="none"
-							>
-								<path
-									d="M6.76 22h10.48c2.76 0 3.86-1.69 3.99-3.75l.52-8.26A3.753 3.753 0 0 0 18 6c-.61 0-1.17-.35-1.45-.89l-.72-1.45C15.37 2.75 14.17 2 13.15 2h-2.29c-1.03 0-2.23.75-2.69 1.66l-.72 1.45C7.17 5.65 6.61 6 6 6 3.83 6 2.11 7.83 2.25 9.99l.52 8.26C2.89 20.31 4 22 6.76 22ZM10.5 8h3"
-									stroke="#000000"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								></path>
-								<path
-									d="M12 18c1.79 0 3.25-1.46 3.25-3.25S13.79 11.5 12 11.5s-3.25 1.46-3.25 3.25S10.21 18 12 18Z"
-									stroke="#000000"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								></path>
-							</svg>
-						</button>
-						<input
-							type="file"
-							accept="image/*"
-							ref={fileInputRef}
-							onChange={handleFileChange}
-							className="hidden"
-						/>
 						<div className="relative mx-2 flex-grow">
 							<div className="relative">
 								<textarea
 									rows={1}
-									className="w-full rounded-md border p-3 pr-12 font-poppins text-base placeholder-black focus:outline-none"
+									className="w-full resize-none rounded-md border p-3 pr-12 font-poppins text-base placeholder-black focus:outline-none"
 									placeholder="Send a message..."
 									value={message}
 									onChange={(e) => setMessage(e.target.value)}
@@ -225,6 +201,41 @@ const Home = () => {
 								</svg>
 							</button>
 						</div>
+						<button
+							type="button"
+							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
+							// onClick={handleCameraClick}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width={28}
+								height={24}
+								viewBox="0 0 24 24"
+								fill="none"
+							>
+								<path
+									d="M6.76 22h10.48c2.76 0 3.86-1.69 3.99-3.75l.52-8.26A3.753 3.753 0 0 0 18 6c-.61 0-1.17-.35-1.45-.89l-.72-1.45C15.37 2.75 14.17 2 13.15 2h-2.29c-1.03 0-2.23.75-2.69 1.66l-.72 1.45C7.17 5.65 6.61 6 6 6 3.83 6 2.11 7.83 2.25 9.99l.52 8.26C2.89 20.31 4 22 6.76 22ZM10.5 8h3"
+									stroke="#000000"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								></path>
+								<path
+									d="M12 18c1.79 0 3.25-1.46 3.25-3.25S13.79 11.5 12 11.5s-3.25 1.46-3.25 3.25S10.21 18 12 18Z"
+									stroke="#000000"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								></path>
+							</svg>
+						</button>
+						{/* <input
+							type="file"
+							accept="image/*"
+							ref={fileInputRef}
+							onChange={handleFileChange}
+							className="hidden"
+						/> */}
 					</div>
 				</div>
 			</main>
@@ -233,4 +244,3 @@ const Home = () => {
 };
 
 export default Home;
-
