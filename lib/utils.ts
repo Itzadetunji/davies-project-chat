@@ -1,5 +1,11 @@
 import connectMongoDB from "./mongo";
-import User from "@/models/user"
+import User from "@/models/user";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+ return twMerge(clsx(inputs));
+}
 
 
 export const deductBalance = async (price:number, user: any) => {
