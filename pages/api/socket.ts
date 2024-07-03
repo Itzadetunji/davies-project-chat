@@ -29,10 +29,10 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
         }
       });
 
-      socket.on("newMessage", async ({ messages, chatId, userId }) => {
+      socket.on("newMessage", async ({ messages, chatId, userId }, callback) => {
         const responseMessage = await processMessage(messages, chatId, userId);
         if (responseMessage !== undefined) {
-          socket.to(chatId).emit("responseMessage", responseMessage);
+          callback(responseMessage)
         }
       });
 

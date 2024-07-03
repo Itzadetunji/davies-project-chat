@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 // import Ellipse from "@/public/ellipse.png";
 import { io } from "socket.io-client";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {useUserStore} from "@/store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
 
 interface Message {
@@ -25,25 +25,7 @@ interface InitData {
 const socket = io({ path: "/api/socket" });
 
 const Home = () => {
-	// const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-	// const handleCameraClick = () => {
-	// 	if (fileInputRef.current) {
-	// 		fileInputRef.current.click();
-	// 	}
-	// };
-
-	// const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-	// 	const file = event.target.files?.[0];
-	// 	if (file) {
-	// 		const reader = new FileReader();
-	// 		reader.onloadend = () => {
-	// 			setImagePrompt(reader.result as string);
-	// 		};
-	// 		reader.readAsDataURL(file);
-	// 	}
-	// };
 
 	const [message, setMessage] = useState<string>("");
 	const [imagePrompt, setImagePrompt] = useState<string>("");
@@ -74,10 +56,6 @@ const Home = () => {
 				setChatName(data.chat_name);
 				setPhotoUrl(data.photo_url);
 			});
-
-			socket.on("responseMessage", (msg: Message) => {
-				setMessages((prevMessages) => [...prevMessages, msg]);
-			});
 		}
 	}, [router.query]);
 
@@ -92,6 +70,8 @@ const Home = () => {
 			messages: [...messages, newMessage],
 			chatId,
 			userId,
+		}, (response: any) => {
+			setMessages((prevMessages) => [...prevMessages, response]);
 		});
 		setMessage("");
 	};
@@ -109,9 +89,9 @@ const Home = () => {
 	return (
 		<>
 			<main className="relative flex h-[100svh] w-full flex-col">
-				<div className="w-full rounded-b-xl bg-peach p-5">
+				<div className="w-full rounded-b-xl bg-peach p-2">
 					<div className="flex items-center justify-between">
-						<h1 className="font-poppins text-xl">
+						<h1 className="font-poppins text-xl text-white px-2">
 							{initData?.chat_name || "Loading..."}
 						</h1>
 						{initData && (
@@ -119,7 +99,7 @@ const Home = () => {
 								<img
 									src={initData.photo_url}
 									alt="Ellipse"
-									className="h-14 w-14 cursor-pointer rounded-full"
+									className="h-12 w-12 cursor-pointer rounded-full m-1"
 								/>
 							</Link>
 						)}
@@ -204,7 +184,7 @@ const Home = () => {
 						<button
 							type="button"
 							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
-							// onClick={handleCameraClick}
+						// onClick={handleCameraClick}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
