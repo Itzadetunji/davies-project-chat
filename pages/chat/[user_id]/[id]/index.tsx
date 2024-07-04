@@ -127,7 +127,7 @@ const Home = () => {
 									<img
 										src={photo_url}
 										alt="uploaded"
-										className="h-auto max-w-full rounded"
+										className="h-[80dvh] max-w-full rounded"
 									/>
 								</div>
 							)}
