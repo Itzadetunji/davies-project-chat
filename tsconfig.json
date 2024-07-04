@@ -30,6 +30,6 @@
       ]
     },
 	},
-	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "models/user.js", "pages/api/socket.js"],
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "models/user.js", "pages/api/socket.ts"],
 	"exclude": ["node_modules"]
 }

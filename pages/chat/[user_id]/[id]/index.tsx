@@ -42,14 +42,17 @@ const Home = () => {
 	}>({ chatId: "", userId: "" });
 
 	const { setPhotoUrl, setChatName } = useUserStore();
-
+	
+	socket.on("connect", () => {
+		console.log("Connected");
+	});
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
 			id: string;
 			user_id: string;
 		};
 		if (chatId && userId) {
-			socket.emit("joinRoom", { chatId, userId });
+			socket.emit("joinRoom", { chatId, userId }, (response:any) => console.log("Joined room:", response));
 			console.log("Sent Join room request");
 			setIds({ chatId, userId });
 
@@ -132,7 +135,7 @@ const Home = () => {
 
 				<ScrollArea className="flex-end flex flex-1 flex-col items-baseline justify-end overflow-y-scroll p-4">
 					{messages.map(({ role, content, photo_url }, index) => (
-						
+
 						<div
 							key={index}
 							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end bg-peach text-left text-white" : "w-fit max-w-[80%] justify-start bg-white text-left text-black"}`}
@@ -147,12 +150,12 @@ const Home = () => {
 								</div>
 							)}
 							{!photo_url && content}
-							
+
 						</div>
-						
-						
+
+
 					))}
-					{  isLoading && <ThreeDots width={34} height={24} color="black" />}
+					{isLoading && <ThreeDots width={34} height={24} color="black" />}
 
 					<div ref={messagesEndRef} />
 				</ScrollArea>
@@ -222,7 +225,7 @@ const Home = () => {
 									requestImage();
 								}
 							}}
-							// onClick={handleCameraClick}
+						// onClick={handleCameraClick}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"

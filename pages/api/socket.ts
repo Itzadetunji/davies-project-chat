@@ -1,20 +1,27 @@
 import { Server } from "socket.io";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { Server as HttpServer } from "http";
 import connectMongoDB from "@/lib/mongo";
 import Chat from "@/models/chat";
 import { imageApiRequest, messageApiRequest, requestSwapImageApiRequest } from "@/lib/api";
 // import { deductBalance } from "@/libs/utils";
 
-const ioHandler = async (req, res) => {
+interface Message {
+  content?: string;
+  photo_url?: string;
+  role: string;
+}
+
+const ioHandler = async (req: NextApiRequest, res: any) => {
   if (!res.socket.server.io) {
     await connectMongoDB();
-    const httpServer = res.socket.server;
+    const httpServer: HttpServer = res.socket.server;
     const io = new Server(httpServer, {
       path: "/api/socket",
     });
     console.log("Initialized socket.io");
     io.on("connection", (socket) => {
-      console.log("Connected to socket.io");
-      socket.on("joinRoom", async ({ chatId, userId }) => {
+      socket.on("joinRoom", async ({ chatId, userId }, callback) => {
         console.log("Received join room request", chatId);
         const chat = await Chat.findOne({ _id: chatId, user_id: userId });
         if (chat) {
@@ -22,6 +29,7 @@ const ioHandler = async (req, res) => {
           console.log("Joined room", chatId);
           io.to(chatId).emit("getInitData", chat);
           console.log("Sent init data", chatId);
+          callback(chat);
         }
       });
 
@@ -33,7 +41,7 @@ const ioHandler = async (req, res) => {
       });
 
       socket.on("requestImage", async ({ message, chatId, userId }, callback) => {
-        console.log("Recieved");
+  		  console.log("Recieved");
         const responseImage = await processImage(message, chatId, userId);
         callback(responseImage);
       });
@@ -44,7 +52,7 @@ const ioHandler = async (req, res) => {
   res.end();
 };
 
-const processMessage = async (messages, chatId, userId) => {
+const processMessage = async (messages: Message[], chatId: string, userId: string) => {
   const chat = await Chat.findOne({ _id: chatId, user_id: userId });
   if (!chat) return;
 
@@ -55,7 +63,7 @@ const processMessage = async (messages, chatId, userId) => {
   return assistantMessage;
 };
 
-const processImage = async (message, chatId, userId) => {
+const processImage = async (message: Message, chatId: any, userId: string) => {
   const chat = await Chat.findOne({ _id: chatId, user_id: userId });
   if (!chat) return;
 
