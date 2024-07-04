@@ -11,8 +11,9 @@ const ioHandler = async (req, res) => {
     const io = new Server(httpServer, {
       path: "/api/socket",
     });
-
+    console.log("Initialized socket.io");
     io.on("connection", (socket) => {
+      console.log("Connected to socket.io");
       socket.on("joinRoom", async ({ chatId, userId }) => {
         console.log("Received join room request", chatId);
         const chat = await Chat.findOne({ _id: chatId, user_id: userId });
