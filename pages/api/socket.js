@@ -1,21 +1,13 @@
 import { Server } from "socket.io";
-import type { NextApiRequest, NextApiResponse } from "next";
-import { Server as HttpServer } from "http";
 import connectMongoDB from "@/lib/mongo";
 import Chat from "@/models/chat";
 import { imageApiRequest, messageApiRequest, requestSwapImageApiRequest } from "@/lib/api";
 // import { deductBalance } from "@/libs/utils";
 
-interface Message {
-  content?: string;
-  photo_url?: string;
-  role: string;
-}
-
-const ioHandler = async (req: NextApiRequest, res: any) => {
+const ioHandler = async (req, res) => {
   if (!res.socket.server.io) {
     await connectMongoDB();
-    const httpServer: HttpServer = res.socket.server;
+    const httpServer = res.socket.server;
     const io = new Server(httpServer, {
       path: "/api/socket",
     });
@@ -40,7 +32,7 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
       });
 
       socket.on("requestImage", async ({ message, chatId, userId }, callback) => {
-  		  console.log("Recieved");
+        console.log("Recieved");
         const responseImage = await processImage(message, chatId, userId);
         callback(responseImage);
       });
@@ -51,7 +43,7 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
   res.end();
 };
 
-const processMessage = async (messages: Message[], chatId: string, userId: string) => {
+const processMessage = async (messages, chatId, userId) => {
   const chat = await Chat.findOne({ _id: chatId, user_id: userId });
   if (!chat) return;
 
@@ -62,7 +54,7 @@ const processMessage = async (messages: Message[], chatId: string, userId: strin
   return assistantMessage;
 };
 
-const processImage = async (message: Message, chatId: any, userId: string) => {
+const processImage = async (message, chatId, userId) => {
   const chat = await Chat.findOne({ _id: chatId, user_id: userId });
   if (!chat) return;
 
