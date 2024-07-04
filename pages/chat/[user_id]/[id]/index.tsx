@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
+import { ThreeDots } from "react-loader-spinner";
 
 interface Message {
 	role: string;
@@ -31,6 +32,7 @@ const Home = () => {
 	const [imagePrompt, setImagePrompt] = useState<string>("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [initData, setInitData] = useState<InitData | undefined>(undefined);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const router = useRouter();
 
@@ -63,28 +65,38 @@ const Home = () => {
 
 	const sendMessage = () => {
 		const newMessage: Message = { role: "user", content: message };
+		setIsLoading(true);
 
 		setMessages((prevMessages) => [...prevMessages, newMessage]);
-		socket.emit("newMessage", {
-			messages: [...messages, newMessage],
-			chatId,
-			userId,
-		}, (response: any) => {
-			setMessages((prevMessages) => [...prevMessages, response]);
-		});
+		socket.emit(
+			"newMessage",
+			{
+				messages: [...messages, newMessage],
+				chatId,
+				userId,
+			},
+			(response: any) => {
+				setMessages((prevMessages) => [...prevMessages, response]);
+				setIsLoading(false);
+			}
+		);
 		setMessage("");
 	};
 
 	const requestImage = () => {
 		const newMessage: Message = { role: "user", content: message };
 		setMessages((prevMessages) => [...prevMessages, newMessage]);
-		socket.emit("requestImage", {
-			message: newMessage,
-			chatId,
-			userId,
-		}, (response: any) => {
-			setMessages((prevMessages) => [...prevMessages, response]);
-		});
+		socket.emit(
+			"requestImage",
+			{
+				message: newMessage,
+				chatId,
+				userId,
+			},
+			(response: any) => {
+				setMessages((prevMessages) => [...prevMessages, response]);
+			}
+		);
 		setMessage("");
 	};
 
@@ -103,15 +115,15 @@ const Home = () => {
 			<main className="relative flex h-[100svh] w-full flex-col">
 				<div className="w-full rounded-b-xl bg-peach p-2">
 					<div className="flex items-center justify-between">
-						<h1 className="font-poppins text-xl text-white px-2">
+						<h1 className="px-2 font-poppins text-xl text-white">
 							{initData?.chat_name || "Loading..."}
 						</h1>
 						{initData && (
-							<Link href={'/profile'}>
+							<Link href={"/profile"}>
 								<img
 									src={initData.photo_url}
 									alt="Ellipse"
-									className="h-12 w-12 cursor-pointer rounded-full m-1"
+									className="m-1 h-12 w-12 cursor-pointer rounded-full"
 								/>
 							</Link>
 						)}
@@ -120,6 +132,7 @@ const Home = () => {
 
 				<ScrollArea className="flex-end flex flex-1 flex-col items-baseline justify-end overflow-y-scroll p-4">
 					{messages.map(({ role, content, photo_url }, index) => (
+						
 						<div
 							key={index}
 							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end bg-peach text-left text-white" : "w-fit max-w-[80%] justify-start bg-white text-left text-black"}`}
@@ -129,18 +142,23 @@ const Home = () => {
 									<img
 										src={photo_url}
 										alt="uploaded"
-										className="h-[80dvh] max-w-full rounded"
+										className="rounded object-contain"
 									/>
 								</div>
 							)}
 							{!photo_url && content}
+							
 						</div>
+						
+						
 					))}
+					{  isLoading && <ThreeDots width={34} height={24} color="black" />}
+
 					<div ref={messagesEndRef} />
 				</ScrollArea>
 
 				<div className="flex w-full items-center justify-center p-4">
-					<div className="flex w-full max-w-xl items-center">
+					<div className="flex w-full items-center">
 						<div className="relative mx-2 flex-grow">
 							<div className="relative">
 								<textarea
@@ -176,7 +194,8 @@ const Home = () => {
 								type="button"
 								className="absolute right-3 top-1/2 -translate-y-1/2 transform text-red-500"
 								onClick={() => {
-									if (message.trim() !== "") {// || imagePrompt) {
+									if (message.trim() !== "") {
+										// || imagePrompt) {
 										sendMessage();
 									}
 								}}
@@ -203,7 +222,7 @@ const Home = () => {
 									requestImage();
 								}
 							}}
-						// onClick={handleCameraClick}
+							// onClick={handleCameraClick}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
