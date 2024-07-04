@@ -48,9 +48,11 @@ const Home = () => {
 		};
 		if (chatId && userId) {
 			socket.emit("joinRoom", { chatId, userId });
+			console.log("Sent Join room request");
 			setIds({ chatId, userId });
 
 			socket.on("getInitData", (data: any) => {
+				console.log("Gotten init data");
 				setInitData(data);
 				setMessages(data.messages);
 				setChatName(data.chat_name);

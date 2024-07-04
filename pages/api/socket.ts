@@ -22,10 +22,13 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 
     io.on("connection", (socket) => {
       socket.on("joinRoom", async ({ chatId, userId }) => {
+        console.log("Received join room request", chatId);
         const chat = await Chat.findOne({ _id: chatId, user_id: userId });
         if (chat) {
           socket.join(chatId);
+          console.log("Joined room", chatId);
           io.to(chatId).emit("getInitData", chat);
+          console.log("Sent init data", chatId);
         }
       });
 
