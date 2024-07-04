@@ -46,11 +46,13 @@ const Home = () => {
 	socket.on("connect", () => {
 		console.log("Connected");
 	});
+	
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
 			id: string;
 			user_id: string;
 		};
+		
 		if (chatId && userId) {
 			socket.emit("joinRoom", { chatId, userId }, (response:any) => console.log("Joined room:", response));
 			console.log("Sent Join room request");
