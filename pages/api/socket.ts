@@ -26,7 +26,7 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 		});
 		console.log("Initialized socket.io");
 		io.engine.on("connection_error", (err) => {
-			// console.log(err.message);  // the error message, for example "Session ID unknown"
+			console.log(err.message);  // the error message, for example "Session ID unknown"
 		});
 
 		io.on("connection", (socket) => {
