@@ -134,6 +134,7 @@ const Home = () => {
 							{!photo_url && content}
 						</div>
 					))}
+					<div ref={messagesEndRef} />
 				</ScrollArea>
 
 				<div className="flex w-full items-center justify-center p-4">
