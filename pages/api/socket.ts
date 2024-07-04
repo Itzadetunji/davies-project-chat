@@ -22,7 +22,6 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 		const httpServer: HttpServer = res.socket.server;
 		const io = new Server(httpServer, {
 			path: "/api/socket",
-			addTrailingSlash: false,
 		});
 		console.log("Initialized socket.io");
 		io.engine.on("connection_error", (err) => {
