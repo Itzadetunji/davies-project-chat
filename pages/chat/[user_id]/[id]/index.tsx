@@ -42,11 +42,7 @@ const Home = () => {
 	}>({ chatId: "", userId: "" });
 
 	const { setPhotoUrl, setChatName } = useUserStore();
-	
-	socket.on("connect", () => {
-		console.log("Connected");
-	});
-	
+		
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
 			id: string;
@@ -54,12 +50,10 @@ const Home = () => {
 		};
 		
 		if (chatId && userId) {
-			socket.emit("joinRoom", { chatId, userId }, (response:any) => console.log("Joined room:", response));
-			console.log("Sent Join room request");
+			socket.emit("joinRoom", { chatId, userId });
 			setIds({ chatId, userId });
 
 			socket.on("getInitData", (data: any) => {
-				console.log("Gotten init data");
 				setInitData(data);
 				setMessages(data.messages);
 				setChatName(data.chat_name);

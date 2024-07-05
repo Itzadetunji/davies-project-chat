@@ -23,24 +23,16 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 		const io = new Server(httpServer, {
 			path: "/api/socket",
 		});
-		console.log("Initialized socket.io");
-		io.engine.on("connection_error", (err) => {
-			console.log(err.message);  // the error message, for example "Session ID unknown"
-		});
 
 		io.on("connection", (socket) => {
-			socket.on("joinRoom", async ({ chatId, userId }, callback) => {
-				console.log("Received join room request", chatId);
+			socket.on("joinRoom", async ({ chatId, userId }) => {
 				const chat = await Chat.findOne({
 					_id: chatId,
 					user_id: userId,
 				});
 				if (chat) {
 					socket.join(chatId);
-					console.log("Joined room", chatId);
 					io.to(chatId).emit("getInitData", chat);
-					console.log("Sent init data", chatId);
-					callback(chat);
 				}
 			});
 
@@ -61,7 +53,6 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 			socket.on(
 				"requestImage",
 				async ({ message, chatId, userId }, callback) => {
-					console.log("Recieved");
 					const responseImage = await processImage(
 						message,
 						chatId,
