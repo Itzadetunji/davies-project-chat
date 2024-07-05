@@ -33,9 +33,8 @@ const Profile: React.FC = () => {
 					</h2>
 					<div className="text-center text-[#323142] text-opacity-[0.52]">
 						<p className="text-[14px] leading-[21px]">
-							@emilyraves
+							@{chat_name.replace(/\s+/g, "-")}
 						</p>
-						<p className="text-[12px] leading-[18px]">female</p>
 					</div>
 				</div>
 			</div>
