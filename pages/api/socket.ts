@@ -109,7 +109,7 @@ const processImage = async (message: Message, chatId: any, userId: string) => {
 	const assistantMessage = {
 		role: "assistant",
 		photo_url: imageUrl,
-		content: `A photo response for prompt: "${message.content}"`,
+		content: imageUrl===null ? "Something went wrong" : `Here is a photo for your request "${message.content}"`,
 	};
 	await Chat.updateOne(
 		{ _id: chatId, user_id: userId },

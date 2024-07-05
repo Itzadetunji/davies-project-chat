@@ -84,6 +84,7 @@ const Home = () => {
 
 	const requestImage = () => {
 		const newMessage: Message = { role: "user", content: message };
+		setIsLoading(true);
 		setMessages((prevMessages) => [...prevMessages, newMessage]);
 		socket.emit(
 			"requestImage",
@@ -142,6 +143,7 @@ const Home = () => {
 										src={photo_url}
 										alt="uploaded"
 										className="rounded object-contain"
+										width={480}
 									/>
 								</div>
 							)}
