@@ -95,6 +95,7 @@ const Home = () => {
 			},
 			(response: any) => {
 				setMessages((prevMessages) => [...prevMessages, response]);
+				setIsLoading(false);
 			}
 		);
 		setMessage("");
@@ -147,7 +148,7 @@ const Home = () => {
 									/>
 								</div>
 							)}
-							{!photo_url && content}
+							{photo_url === undefined && content}
 
 						</div>
 
