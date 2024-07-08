@@ -11,6 +11,7 @@ import {
 import { detectLanguage, translateText } from "@/lib/translate";
 import { franc } from "franc";
 import { languageMap } from "@/lib/vars";
+import { deductBalance } from "@/lib/backend-utils";
 
 // import { deductBalance } from "@/libs/utils";
 
@@ -43,6 +44,15 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 			socket.on(
 				"newMessage",
 				async ({ messages, chatId, userId }, callback) => {
+					const has_funds = await deductBalance(1, userId);
+					if (!has_funds) {
+						callback({
+							role: "assistant",
+							content:
+								"You don't have enough credits to continue this chat",
+						});
+						return;
+					}
 					const responseMessage = await processMessage(
 						messages,
 						chatId,
@@ -57,6 +67,15 @@ const ioHandler = async (req: NextApiRequest, res: any) => {
 			socket.on(
 				"requestImage",
 				async ({ message, chatId, userId }, callback) => {
+					const has_funds = await deductBalance(5, userId);
+					if (!has_funds) {
+						callback({
+							role: "assistant",
+							content:
+								"You don't have enough credits to request an image",
+						});
+						return;
+					}
 					const responseImage = await processImage(
 						message,
 						chatId,
@@ -82,11 +101,13 @@ const processMessage = async (
 
 	let code = franc(messages[messages.length - 1].content);
 	if (code !== "eng") {
-		code = await detectLanguage(messages[messages.length - 1].content)
+		code = await detectLanguage(messages[messages.length - 1].content);
 	}
 	const messagesCopy = JSON.parse(JSON.stringify(messages));
 	messagesCopy[messagesCopy.length - 1].content +=
-		code !== "eng" ? `\nThis is ${languageMap[code]} but answer in English` : "";
+		code !== "eng"
+			? `\nThis is ${languageMap[code]} but answer in English`
+			: "";
 
 	const response = await messageApiRequest(
 		messagesCopy,

@@ -9,7 +9,7 @@ const userSchema = new Schema({
   last_active: Date,
   first_deposit: Boolean,
   active: String,
-  free_credits: Number
+  freecredits: Number
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
