@@ -92,6 +92,7 @@ export default function Document() {
 					content="/ms-icon-144x144.png"
 				/>
 				<meta name="theme-color" content="#ffffff" />
+				<script src="https://telegram.org/js/telegram-web-app.js"></script>
 			</Head>
 			<body>
 				<Main />
