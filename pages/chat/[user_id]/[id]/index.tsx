@@ -30,7 +30,6 @@ const Home = () => {
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	const [message, setMessage] = useState<string>("");
-	const [imagePrompt, setImagePrompt] = useState<string>("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [initData, setInitData] = useState<InitData | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -78,6 +77,7 @@ const Home = () => {
 	useEffect(() => {
 		const randomColor = getRandomColor();
 		setColor(randomColor);
+		if (window.Telegram?.WebApp) window.Telegram.WebApp.expand()
 	}, []);
 
 	const sendMessage = () => {
