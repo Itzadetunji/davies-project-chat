@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
 import { ThreeDots } from "react-loader-spinner";
+import { Button } from "@/components/ui/button";
 
 interface Message {
 	role: string;
@@ -48,7 +49,7 @@ const Home = () => {
 			id: string;
 			user_id: string;
 		};
-		
+
 		if (chatId && userId) {
 			socket.emit("joinRoom", { chatId, userId });
 			setIds({ chatId, userId });
@@ -61,6 +62,23 @@ const Home = () => {
 			});
 		}
 	}, [router.query]);
+
+	const [color, setColor] = useState("");
+
+	function getRandomColor() {
+		const letters = '0123456789ABCDEF';
+		let color = '#';
+		for (let i = 0; i < 6; i++) {
+		  color += letters[Math.floor(Math.random() * 16)];
+		}
+		return color;
+	  }
+	  
+
+	useEffect(() => {
+		const randomColor = getRandomColor();
+		setColor(randomColor);
+	}, []);
 
 	const sendMessage = () => {
 		const newMessage: Message = { role: "user", content: message };
@@ -114,7 +132,10 @@ const Home = () => {
 	return (
 		<>
 			<main className="relative flex h-[100svh] w-full flex-col">
-				<div className="w-full rounded-b-xl bg-peach p-2">
+				<div
+					className="w-full rounded-b-xl p-2"
+					style={{ backgroundColor: color }}
+				>
 					<div className="flex items-center justify-between">
 						<h1 className="px-2 font-poppins text-xl text-white">
 							{initData?.chat_name || "Loading..."}
@@ -133,10 +154,13 @@ const Home = () => {
 
 				<ScrollArea className="flex-end flex flex-1 flex-col items-baseline justify-end overflow-y-scroll p-4">
 					{messages.map(({ role, content, photo_url }, index) => (
-
 						<div
 							key={index}
-							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end bg-peach text-left text-white" : "w-fit max-w-[80%] justify-start bg-white text-left text-black"}`}
+							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end text-left text-white" : "w-fit max-w-[80%] justify-start text-left text-black"}`}
+							style={{
+								backgroundColor:
+									role === "user" ? color : "white",
+							}}
 						>
 							{photo_url && (
 								<div className="mt-2">
@@ -151,17 +175,17 @@ const Home = () => {
 							{photo_url === undefined && content}
 
 						</div>
-
-
 					))}
-					{isLoading && <ThreeDots width={34} height={24} color="black" />}
+					{isLoading && (
+						<ThreeDots width={34} height={24} color="black" />
+					)}
 
 					<div ref={messagesEndRef} />
 				</ScrollArea>
 
-				<div className="flex w-full items-center justify-center p-4">
+				<div className="flex w-full items-center justify-center px-4">
 					<div className="flex w-full items-center">
-						<div className="relative mx-2 flex-grow">
+						<div className="relative flex-grow">
 							<div className="relative">
 								<textarea
 									rows={1}
@@ -182,15 +206,6 @@ const Home = () => {
 										}
 									}}
 								/>
-								{/* {imagePrompt && (
-									<div className="absolute left-0 top-1/2 -translate-y-1/2 transform">
-										<img
-											src={imagePrompt}
-											alt="preview"
-											className="mt-2 h-[40px] max-w-[200px] rounded"
-										/>
-									</div>
-								)} */}
 							</div>
 							<button
 								type="button"
@@ -211,53 +226,26 @@ const Home = () => {
 								>
 									<path
 										d="m18.07 8.509-8.56-4.28c-5.75-2.88-8.11-.52-5.23 5.23l.87 1.74c.25.51.25 1.1 0 1.61l-.87 1.73c-2.88 5.75-.53 8.11 5.23 5.23l8.56-4.28c3.84-1.92 3.84-5.06 0-6.98Zm-3.23 4.24h-5.4c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h5.4c.41 0 .75.34.75.75s-.34.75-.75.75Z"
-										fill="#C86060"
+										fill={color}
 									></path>
 								</svg>
 							</button>
 						</div>
-						<button
-							type="button"
-							className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none"
-							onClick={() => {
-								if (message.trim() !== "") {
-									requestImage();
-								}
-							}}
-						// onClick={handleCameraClick}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width={28}
-								height={24}
-								viewBox="0 0 24 24"
-								fill="none"
-							>
-								<path
-									d="M6.76 22h10.48c2.76 0 3.86-1.69 3.99-3.75l.52-8.26A3.753 3.753 0 0 0 18 6c-.61 0-1.17-.35-1.45-.89l-.72-1.45C15.37 2.75 14.17 2 13.15 2h-2.29c-1.03 0-2.23.75-2.69 1.66l-.72 1.45C7.17 5.65 6.61 6 6 6 3.83 6 2.11 7.83 2.25 9.99l.52 8.26C2.89 20.31 4 22 6.76 22ZM10.5 8h3"
-									stroke="#000000"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								></path>
-								<path
-									d="M12 18c1.79 0 3.25-1.46 3.25-3.25S13.79 11.5 12 11.5s-3.25 1.46-3.25 3.25S10.21 18 12 18Z"
-									stroke="#000000"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								></path>
-							</svg>
-						</button>
-						{/* <input
-							type="file"
-							accept="image/*"
-							ref={fileInputRef}
-							onChange={handleFileChange}
-							className="hidden"
-						/> */}
 					</div>
 				</div>
+				<Button
+					type="button"
+					className="mx-4 mb-2 p-2 text-white hover:bg-black focus:outline-none"
+					style={{ backgroundColor: color }}
+					onClick={() => {
+						if (message.trim() !== "") {
+							requestImage();
+						}
+					}}
+					// onClick={handleCameraClick}
+				>
+					Request an image
+				</Button>
 			</main>
 		</>
 	);
