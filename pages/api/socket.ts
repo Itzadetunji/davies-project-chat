@@ -8,10 +8,14 @@ import {
 	messageApiRequest,
 	requestSwapImageApiRequest,
 } from "@/lib/api";
+import { detectLanguage, translateText } from "@/lib/translate";
+import { franc } from "franc";
+import { languageMap } from "@/lib/vars";
+
 // import { deductBalance } from "@/libs/utils";
 
 interface Message {
-	content?: string;
+	content: string;
 	photo_url?: string;
 	role: string;
 }
@@ -76,12 +80,26 @@ const processMessage = async (
 	const chat = await Chat.findOne({ _id: chatId, user_id: userId });
 	if (!chat) return;
 
+	let code = franc(messages[messages.length - 1].content);
+	if (code !== "eng") {
+		code = await detectLanguage(messages[messages.length - 1].content)
+	}
+	const messagesCopy = JSON.parse(JSON.stringify(messages));
+	messagesCopy[messagesCopy.length - 1].content +=
+		code !== "eng" ? `\nThis is ${languageMap[code]} but answer in English` : "";
+
 	const response = await messageApiRequest(
-		messages,
+		messagesCopy,
 		chat.genre,
 		chat.chat_name
 	);
-	const assistantMessage = { role: "assistant", content: response.result };
+	const assistantMessage = {
+		role: "assistant",
+		content:
+			code !== "eng"
+				? await translateText(response.result, code)
+				: response.result,
+	};
 
 	await Chat.updateOne(
 		{ _id: chatId, user_id: userId },
@@ -109,7 +127,10 @@ const processImage = async (message: Message, chatId: any, userId: string) => {
 	const assistantMessage = {
 		role: "assistant",
 		photo_url: imageUrl,
-		content: imageUrl==null ? "Something went wrong" : `Here is a photo for your request "${message.content}"`,
+		content:
+			imageUrl == null
+				? "Something went wrong"
+				: `Here is a photo for your request "${message.content}"`,
 	};
 	await Chat.updateOne(
 		{ _id: chatId, user_id: userId },
