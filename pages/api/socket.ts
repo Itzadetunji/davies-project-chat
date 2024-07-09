@@ -3,14 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Server as HttpServer } from "http";
 import connectMongoDB from "@/lib/mongo";
 import Chat from "@/models/chat";
-import {
-	imageApiRequest,
-	messageApiRequest,
-	requestSwapImageApiRequest,
-} from "@/lib/api";
+import { messageApiRequest, requestSwapImageApiRequest } from "@/lib/api";
 import { detectLanguage, translateText } from "@/lib/translate";
-import { franc } from "franc";
-import { languageMap } from "@/lib/vars";
 import { deductBalance } from "@/lib/backend-utils";
 
 // import { deductBalance } from "@/libs/utils";
@@ -99,26 +93,18 @@ const processMessage = async (
 	const chat = await Chat.findOne({ _id: chatId, user_id: userId });
 	if (!chat) return;
 
-	let code = franc(messages[messages.length - 1].content);
-	if (code !== "eng") {
-		code = await detectLanguage(messages[messages.length - 1].content);
-	}
-	const messagesCopy = JSON.parse(JSON.stringify(messages));
-	messagesCopy[messagesCopy.length - 1].content +=
-		code !== "eng"
-			? `\nThis is ${languageMap[code]} but answer in English`
-			: "";
-
 	const response = await messageApiRequest(
-		messagesCopy,
+		messages,
 		chat.genre,
 		chat.chat_name
 	);
+
+	const lang = chat.lang || "en";
 	const assistantMessage = {
 		role: "assistant",
 		content:
-			code !== "eng"
-				? await translateText(response.result, code)
+			lang !== "en"
+				? await translateText(response.result, lang)
 				: response.result,
 	};
 
@@ -138,9 +124,12 @@ const processMessage = async (
 const processImage = async (message: Message, chatId: any, userId: string) => {
 	const chat = await Chat.findOne({ _id: chatId, user_id: userId });
 	if (!chat) return;
-
+	
+	const lang = await detectLanguage(message.content);
 	const imageUrl = await requestSwapImageApiRequest(
-		message.content,
+		lang === "en"
+			? message.content
+			: await translateText(message.content, "en"),
 		chat.genre,
 		chat.photo_url
 	);

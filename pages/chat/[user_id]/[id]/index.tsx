@@ -41,7 +41,7 @@ const Home = () => {
 		userId: string;
 	}>({ chatId: "", userId: "" });
 
-	const { setPhotoUrl, setChatName } = useUserStore();
+	const { setPhotoUrl, setChatName, setLanguage } = useUserStore();
 		
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
@@ -58,6 +58,7 @@ const Home = () => {
 				setMessages(data.messages);
 				setChatName(data.chat_name);
 				setPhotoUrl(data.photo_url);
+				setLanguage(data.lang);
 			});
 		}
 	}, [router.query]);

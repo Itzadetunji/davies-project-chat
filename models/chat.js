@@ -5,6 +5,7 @@ const chatSchema = new Schema({
   genre: String,
   photo_url: String,
   messages: [],
+  lang: String,
 });
 
 const Chat = mongoose.models.Chat || mongoose.model("Chat", chatSchema);
