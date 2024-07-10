@@ -9,6 +9,7 @@ import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
 import { ThreeDots } from "react-loader-spinner";
 import { Button } from "@/components/ui/button";
+import { DocumentDownload } from "iconsax-react";
 
 interface Message {
 	role: string;
@@ -66,19 +67,18 @@ const Home = () => {
 	const [color, setColor] = useState("");
 
 	function getRandomColor() {
-		const letters = '0123456789ABCDEF';
-		let color = '#';
+		const letters = "0123456789ABCDEF";
+		let color = "#";
 		for (let i = 0; i < 6; i++) {
-		  color += letters[Math.floor(Math.random() * 16)];
+			color += letters[Math.floor(Math.random() * 16)];
 		}
 		return color;
-	  }
-	  
+	}
 
 	useEffect(() => {
 		const randomColor = getRandomColor();
 		setColor(randomColor);
-		if (window.Telegram?.WebApp) window.Telegram.WebApp.expand()
+		if (window.Telegram?.WebApp) window.Telegram.WebApp.expand();
 	}, []);
 
 	const sendMessage = () => {
@@ -152,29 +152,36 @@ const Home = () => {
 						)}
 					</div>
 				</div>
-
 				<ScrollArea className="flex-end flex flex-1 flex-col items-baseline justify-end overflow-y-scroll p-4">
 					{messages.map(({ role, content, photo_url }, index) => (
-						<div
-							key={index}
-							className={`my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end text-left text-white" : "w-fit max-w-[80%] justify-start text-left text-black"}`}
-							style={{
-								backgroundColor:
-									role === "user" ? color : "white",
-							}}
-						>
-							{photo_url && (
-								<div className="mt-2">
-									<img
-										src={photo_url}
-										alt="uploaded"
-										className="rounded object-contain"
-										width={480}
+						<div className="relative">
+							<div
+								key={index}
+								className={`relative my-2 rounded-l-lg rounded-t-lg p-4 ${role === "user" ? "ml-auto w-fit max-w-[80%] justify-end text-left text-white" : "w-fit max-w-[80%] justify-start text-left text-black"}`}
+								style={{
+									backgroundColor:
+										role === "user" ? color : "white",
+								}}
+							>
+								{photo_url && (
+									<div className="mt-2 flex gap-x-3">
+										<img
+											src={photo_url}
+											alt="uploaded"
+											className="rounded object-contain"
+											width={480}
+										/>
+									</div>
+								)}
+								{photo_url === undefined && content}
+								{photo_url && (
+									<DocumentDownload
+										className="absolute -right-10 top-1/2 cursor-pointer"
+										size="32"
+										color={color}
 									/>
-								</div>
-							)}
-							{photo_url === undefined && content}
-
+								)}
+							</div>
 						</div>
 					))}
 					{isLoading && (
