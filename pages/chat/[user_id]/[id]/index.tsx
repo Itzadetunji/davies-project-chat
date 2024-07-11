@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ThreeDots } from "react-loader-spinner";
 import { Button } from "@/components/ui/button";
 import { DocumentDownload } from "iconsax-react";
+import axios from "axios";
 
 interface Message {
 	role: string;
@@ -34,7 +35,7 @@ const Home = () => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [initData, setInitData] = useState<InitData | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-
+	const [disabledBtnStates, setDisabledBtnStates] = useState<boolean[]>([]);
 	const router = useRouter();
 
 	const [{ chatId, userId }, setIds] = useState<{
@@ -43,7 +44,7 @@ const Home = () => {
 	}>({ chatId: "", userId: "" });
 
 	const { setPhotoUrl, setChatName, setLanguage } = useUserStore();
-		
+
 	useEffect(() => {
 		const { id: chatId, user_id: userId } = router.query as {
 			id: string;
@@ -126,6 +127,23 @@ const Home = () => {
 		}
 	};
 
+	const saveImage = async (index: any, imageFile: string) => {
+		try {
+			const response = await axios.post('/api/' + userId, { photo: imageFile }, {
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			if (response.status === 200){
+				const updatedStates = [...disabledBtnStates];
+				updatedStates[index] = true;
+				setDisabledBtnStates(updatedStates);
+			}
+		} catch (error) {
+			console.error('Error uploading image:', error);
+		}
+	};
+
 	useEffect(() => {
 		scrollToBottom();
 	}, [messages]);
@@ -174,12 +192,16 @@ const Home = () => {
 									</div>
 								)}
 								{photo_url === undefined && content}
-								{photo_url && (
+								{photo_url && !disabledBtnStates[index] && (
 									<DocumentDownload
 										className="absolute -right-10 top-1/2 cursor-pointer"
 										size="32"
 										color={color}
+										onClick={() => saveImage(index, photo_url)}
 									/>
+								)}
+								{photo_url && disabledBtnStates[index] && (
+									<p className="absolute -right-10 top-1/2 cursor-pointer">sent</p>
 								)}
 							</div>
 						</div>
@@ -250,7 +272,7 @@ const Home = () => {
 							requestImage();
 						}
 					}}
-					// onClick={handleCameraClick}
+				// onClick={handleCameraClick}
 				>
 					Request an image
 				</Button>
